@@ -50,7 +50,7 @@ def parse(input_filename, output_filename):
 
 
     output.write("-- Converted by db_converter\n")
-    output.write("START TRANSACTION;\n")
+    # output.write("START TRANSACTION;\n")
     output.write("SET standard_conforming_strings=off;\n")
     output.write("SET escape_string_warning=off;\n")
     output.write("SET CONSTRAINTS ALL DEFERRED;\n\n")
@@ -110,10 +110,15 @@ def parse(input_filename, output_filename):
                 # See if it needs type conversion
                 final_type = None
                 set_sequence = None
-                if type == "tinyint(1)":
+                if type.startswith("tinyint("):
                     type = "int4"
                     set_sequence = True
                     final_type = "boolean"
+                elif type.startswith("mediumint("):
+                    type = "integer"
+                elif type.startswith("float("):
+                    precision = type.split("(")[1].rstrip(")")
+                    type = "numeric("+precision+")"
                 elif type.startswith("int("):
                     type = "integer"
                     set_sequence = True
@@ -192,8 +197,8 @@ def parse(input_filename, output_filename):
 
     # Finish file
     output.write("\n-- Post-data save --\n")
-    output.write("COMMIT;\n")
-    output.write("START TRANSACTION;\n")
+    # output.write("COMMIT;\n")
+    # output.write("START TRANSACTION;\n")
 
     # Write typecasts out
     output.write("\n-- Typecasts --\n")
@@ -217,7 +222,7 @@ def parse(input_filename, output_filename):
 
     # Finish file
     output.write("\n")
-    output.write("COMMIT;\n")
+    # output.write("COMMIT;\n")
     print ""
 
 
